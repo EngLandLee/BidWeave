@@ -1,0 +1,36 @@
+# SPDX-FileCopyrightText: 2026 BidWeave contributors
+# SPDX-License-Identifier: Apache-2.0
+# Purpose: persistent PostgreSQL-backed Flowable process engine configuration.
+server:
+  port: 8080
+spring:
+  application:
+    name: bidweave-workflow
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: never
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+flowable:
+  database-schema-update: true
+  async-executor-activate: false
+  process-definition-location-prefix: classpath:/processes/
+  process-definition-location-suffixes: '**.bpmn20.xml,**.bpmn'
+  rest-api-enabled: true
+  rest-api-path: /process-api
+  common:
+    app:
+      security:
+        enabled: false

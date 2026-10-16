@@ -1,0 +1,56 @@
+# SPDX-FileCopyrightText: 2026 BidWeave contributors
+# SPDX-License-Identifier: Apache-2.0
+# Copyright and license notice: this workflow may be reused under Apache-2.0.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/web/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version: '22'
+      - name: Install web dependencies
+        working-directory: apps/web
+        run: npm ci --ignore-scripts
+      - name: Build landing artifact
+        working-directory: apps/web
+        env:
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_STATIC_SITE: 'true'
+          VITE_API_BASE: /api
+          VITE_KEYCLOAK_URL: ''
+          VITE_KEYCLOAK_REALM: ''
+          VITE_KEYCLOAK_CLIENT: ''
+        run: npm run build
+      - uses: actions/upload-pages-artifact@v3.0.1
+        with:
+          path: apps/web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4.0.5

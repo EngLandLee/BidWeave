@@ -1,0 +1,12 @@
+SPDX-FileCopyrightText: 2026 BidWeave contributors
+SPDX-License-Identifier: Apache-2.0
+
+MẪU TỔNG HỢP — KHÔNG PHẢI MINH CHỨNG PHÁP LÝ
+
+Hồ sơ minh họa hai hợp đồng hỗ trợ CNTT đã hoàn thành:
+- MẪU-01: hỗ trợ hệ thống nội bộ; trạng thái hoàn thành trong tình huống giả lập.
+- MẪU-02: hỗ trợ phần mềm quản lý tài liệu; trạng thái hoàn thành trong tình huống giả lập.
+
+Số lượng dùng cho kịch bản: 2.
+Người xét duyệt phải đối chiếu nội dung và số lượng trước khi xác nhận.
+Không sử dụng tên khách hàng, chữ ký, con dấu hoặc thông tin doanh nghiệp thật.

@@ -1,0 +1,311 @@
+# SPDX-FileCopyrightText: 2026 BidWeave contributors
+# SPDX-License-Identifier: Apache-2.0
+# Purpose: reproducible local BidWeave runtime with explicitly opt-in heavy services.
+name: bidweave
+
+services:
+  postgres:
+    image: postgres:16.4-alpine3.20
+    environment:
+      POSTGRES_DB: bidweave
+      POSTGRES_USER: bidweave
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?run 'make configure' first}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bidweave -d bidweave"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.7
+    command: ["start-dev", "--http-port=8080", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?run 'make configure' first}
+      JAVA_OPTS_APPEND: "-Xms256m -Xmx384m"
+      KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+      KC_HOSTNAME: http://localhost:8091
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_HOSTNAME_STRICT_BACKCHANNEL: "false"
+    volumes:
+      - ./.runtime/keycloak:/opt/keycloak/data/import:ro
+      - keycloak-data:/opt/keycloak/data
+    ports:
+      - "127.0.0.1:8091:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  seaweedfs:
+    image: chrislusf/seaweedfs:3.80
+    command: ["server", "-dir=/data", "-s3", "-s3.config=/etc/seaweedfs/s3.json"]
+    volumes:
+      - seaweed-data:/data
+      - ./.runtime/seaweedfs:/etc/seaweedfs:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:9333/cluster/status >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  workflow:
+    build:
+      context: .
+      dockerfile: services/workflow/Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bidweave
+      SPRING_DATASOURCE_USERNAME: bidweave
+      SPRING_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD:?run 'make configure' first}
+      FLOWABLE_USER: ${FLOWABLE_USER:-flowable}
+      FLOWABLE_PASSWORD: ${FLOWABLE_PASSWORD:?run 'make configure' first}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:8080/actuator/health | grep -q 'UP'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  seaweed-init:
+    image: amazon/aws-cli:2.22.35
+    entrypoint: ["/bin/sh", "-ec"]
+    command: ["aws --endpoint-url http://seaweedfs:8333 s3api head-bucket --bucket bidweave || aws --endpoint-url http://seaweedfs:8333 s3 mb s3://bidweave"]
+    environment:
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY:?run 'make configure' first}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY:?run 'make configure' first}
+      AWS_DEFAULT_REGION: us-east-1
+    depends_on:
+      seaweedfs:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build:
+      context: ./services/api
+    environment:
+      DATABASE_URL: postgresql+psycopg://bidweave:${DATABASE_PASSWORD:?run 'make configure' first}@postgres:5432/bidweave
+      KEYCLOAK_ISSUER: http://localhost:8091/realms/bidweave
+      KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/bidweave/protocol/openid-connect/certs
+      KEYCLOAK_AUDIENCE: bidweave-api
+      S3_ENDPOINT: http://seaweedfs:8333
+      S3_BUCKET: bidweave
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:?run 'make configure' first}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:?run 'make configure' first}
+      FLOWABLE_URL: http://workflow:8080/process-api
+      FLOWABLE_USER: ${FLOWABLE_USER:-flowable}
+      FLOWABLE_PASSWORD: ${FLOWABLE_PASSWORD:?run 'make configure' first}
+      CLAMAV_HOST: ${CLAMAV_HOST:-clamav}
+      CLAMAV_PORT: ${CLAMAV_PORT:-3310}
+      NATS_URL: ${NATS_URL:-nats://nats:4222}
+      FUSEKI_URL: ${FUSEKI_URL:-http://fuseki:3030/bidweave}
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      LLM_MODEL: ${LLM_MODEL:-qwen2.5:1.5b}
+      FUSEKI_USER: admin
+      FUSEKI_PASSWORD: ${FUSEKI_ADMIN_PASSWORD:?run 'make configure' first}
+      HISTORY_DIR: /data/history
+      N8N_WEBHOOK_URL: http://n8n:5678/webhook/bidweave-approved
+      OTEL_ENABLED: ${OTEL_ENABLED:-false}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+    volumes:
+      - history-data:/data/history
+    depends_on:
+      postgres:
+        condition: service_healthy
+      seaweedfs:
+        condition: service_healthy
+      seaweed-init:
+        condition: service_completed_successfully
+      workflow:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      clamav:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    expose: ["8000"]
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  outbox-worker:
+    build:
+      context: ./services/api
+    command: ["sh", "-c", "while true; do python -c 'from bidweave.outbox import deliver_once; deliver_once()' || true; sleep 5; done"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://bidweave:${DATABASE_PASSWORD:?run 'make configure' first}@postgres:5432/bidweave
+      NATS_URL: ${NATS_URL:-nats://nats:4222}
+      HISTORY_DIR: /data/history
+    volumes:
+      - history-data:/data/history
+    depends_on:
+      api:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mcp:
+    build:
+      context: .
+      dockerfile: services/mcp/Dockerfile
+    environment:
+      CORE_API_URL: http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    expose: ["8001"]
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./apps/web
+    expose: ["80"]
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  apisix:
+    image: apache/apisix:3.11.0-debian
+    volumes:
+      - ./.runtime/apisix/config.yaml:/usr/local/apisix/conf/config.yaml:ro
+      - ./.runtime/apisix/apisix.yaml:/usr/local/apisix/conf/apisix.yaml:ro
+    ports:
+      - "127.0.0.1:8090:9080"
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
+      mcp:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/9080; printf \"GET /api/health HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n\" >&3; IFS= read -r status <&3; [[ \"$$status\" == *\" 200 \"* ]]'"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  clamav:
+    image: clamav/clamav:1.4-debian13-slim@sha256:1d4083fccfcd485cdaeee593db7655c923afdb8ed528e828d03e1c8b1e351bec
+    expose: ["3310"]
+    volumes:
+      - clamav-data:/var/lib/clamav
+    healthcheck:
+      test: ["CMD", "clamdscan", "--ping=1"]
+      interval: 30s
+      timeout: 10s
+      retries: 20
+    restart: unless-stopped
+
+  nats:
+    image: nats:2.10.22-alpine
+    command: ["--jetstream", "--store_dir=/data", "--http_port=8222"]
+    volumes:
+      - nats-data:/data
+    expose: ["4222"]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:8222/healthz >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  fuseki:
+    image: stain/jena-fuseki@sha256:b1d0c96f19adddef417520184471ac816cf36c6e72936a88ea02b29f4305929a
+    profiles: [semantic]
+    environment:
+      ADMIN_PASSWORD: ${FUSEKI_ADMIN_PASSWORD:?run 'make configure' first}
+      JVM_ARGS: -Xmx384m
+      FUSEKI_DATASET_1: bidweave
+      TDB: "2"
+    volumes:
+      - fuseki-data:/fuseki
+    expose: ["3030"]
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:0.6.8
+    profiles: [llm]
+    volumes:
+      - ollama-data:/root/.ollama
+    expose: ["11434"]
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      timeout: 10s
+      retries: 30
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    restart: unless-stopped
+
+  n8n:
+    image: n8nio/n8n:2.43.6
+    profiles: [automation]
+    environment:
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_SECURE_COOKIE: "false"
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      DB_TYPE: sqlite
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?run 'make configure' first}
+      EXECUTIONS_DATA_SAVE_ON_SUCCESS: none
+      EXECUTIONS_DATA_SAVE_ON_ERROR: none
+      EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS: "false"
+    volumes:
+      - n8n-data:/home/node/.n8n
+      - ./integrations:/home/node/workflows:ro
+    ports:
+      - "127.0.0.1:5678:5678"
+    restart: unless-stopped
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.120.0
+    profiles: [observability]
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    volumes:
+      - ./infra/otel-collector/config.yaml:/etc/otelcol-contrib/config.yaml:ro
+    expose: ["4317", "4318"]
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.2.1
+    profiles: [observability]
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus"]
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    restart: unless-stopped
+
+
+volumes:
+  postgres-data:
+  keycloak-data:
+  seaweed-data:
+  clamav-data:
+  nats-data:
+  fuseki-data:
+  ollama-data:
+  n8n-data:
+  prometheus-data:
+  history-data:

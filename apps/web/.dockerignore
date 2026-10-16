@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2026 BidWeave contributors
+# SPDX-License-Identifier: Apache-2.0
+# Dependency lockfile, not host-installed modules, drives the image build.
+node_modules
+dist
+*.tsbuildinfo
+.env

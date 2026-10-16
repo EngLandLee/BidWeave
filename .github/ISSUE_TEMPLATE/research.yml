@@ -1,0 +1,40 @@
+# SPDX-FileCopyrightText: 2026 BidWeave contributors
+# SPDX-License-Identifier: Apache-2.0
+# Copyright and license notice: this template may be reused under Apache-2.0.
+name: Research question
+description: Record an evidence-seeking investigation or integration question.
+title: "[Research] "
+labels: [research]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Research is not a product claim. Cite sources and label hypotheses; do not upload private tender documents or credentials.
+  - type: textarea
+    id: question
+    attributes:
+      label: Question and hypothesis
+      description: State what is unknown and what would falsify the hypothesis.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources and provenance
+      description: URLs, versions, retrieval date, dataset/model license and public/private boundary.
+    validations:
+      required: true
+  - type: textarea
+    id: method
+    attributes:
+      label: Proposed method and resource limits
+      description: Reproducible commands, sample boundaries, expected artifacts and 8GB-machine constraints.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Evidence needed for decision
+      description: Define observed outputs; no fabricated benchmark or score.
+    validations:
+      required: true

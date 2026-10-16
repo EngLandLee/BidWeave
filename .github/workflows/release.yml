@@ -1,0 +1,71 @@
+# SPDX-FileCopyrightText: 2026 BidWeave contributors
+# SPDX-License-Identifier: Apache-2.0
+# Copyright and license notice: this workflow may be reused under Apache-2.0.
+name: Source release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5.6.0
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v4.7.1
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: services/workflow/pom.xml
+      - name: Resolve and validate version
+        id: version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="${TAG#v}"
+          python - "$version" <<'PY'
+          import re
+          import sys
+          if not re.fullmatch(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:[-+][0-9A-Za-z.-]+)?", sys.argv[1]):
+              raise SystemExit("tag must be a semantic version such as v1.0.0")
+          PY
+          printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
+      - name: Check source headers
+        run: python scripts/check-headers.py
+      - name: Build workflow executable JAR
+        run: mvn -B --no-transfer-progress -f services/workflow/pom.xml clean package
+      - name: Build source and dependency assets
+        run: |
+          python scripts/release.py \
+            --version '${{ steps.version.outputs.version }}' \
+            --workflow-jar services/workflow/target/bidweave-workflow-1.0.0.jar \
+            --output dist/release
+      - name: Validate SPDX 2.3 documents
+        run: |
+          python -m pip install spdx-tools==0.8.3
+          pyspdxtools --infile dist/release/sbom.spdx.json
+          pyspdxtools --infile dist/release/dependency-sbom.spdx.json
+      - name: Verify checksums
+        working-directory: dist/release
+        run: sha256sum --check SHA256SUMS
+      - uses: actions/upload-artifact@v4.6.2
+        with:
+          name: bidweave-${{ steps.version.outputs.version }}-release-assets
+          path: dist/release
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ steps.version.outputs.version }}" \
+            --verify-tag --generate-notes \
+            --title "BidWeave ${{ steps.version.outputs.version }}" \
+            dist/release/*

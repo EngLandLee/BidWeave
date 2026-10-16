@@ -1,0 +1,44 @@
+# SPDX-FileCopyrightText: 2026 BidWeave contributors
+# SPDX-License-Identifier: Apache-2.0
+# Copyright and license notice: this template may be reused under Apache-2.0.
+name: Feature proposal
+description: Propose a bounded user or platform improvement.
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Explain how the proposal preserves tenant isolation, revision integrity, independent review and explicit external failures. Do not promise scores, eligibility or awards.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and users
+      description: Who needs this and what decision/work is blocked today?
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Proposed behavior and acceptance criteria
+      description: Include API/UI boundaries, empty/error states and observable acceptance evidence.
+    validations:
+      required: true
+  - type: textarea
+    id: security
+    attributes:
+      label: Security, privacy and data boundary
+      description: Public TED metadata vs private evidence, authorization, retention and external-provider implications.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and trade-offs
+  - type: checkboxes
+    id: license
+    attributes:
+      label: License and provenance
+      options:
+        - label: I will preserve SPDX headers, upstream attribution and applicable third-party licenses.
+          required: true
