@@ -6,13 +6,14 @@ COMPOSE := docker compose
 PROFILE ?=
 BACKUP_DIR ?=
 CONFIRM_PROJECT ?=
-.PHONY: help configure build up up-all demo integrations down health test headers smoke intelligence backup restore
+.PHONY: help configure build up up-all keycloak-theme demo integrations down health test headers smoke intelligence backup restore
 
 help:
 	@printf '%s\n' \
 		'make configure                 Generate ignored local secrets and infrastructure configuration' \
-		'make up [PROFILE=...]          Build core and an optional profile; wait for readiness' \
+		'make up [PROFILE=...]          Build core and an optional profile; wait for readiness and activate Keycloak theme' \
 		'make up-all                    Build/start all profiles, including local observability' \
+		'make keycloak-theme            Apply the presentation-only login theme to the existing realm' \
 		'make demo                      Full local stack, model download and n8n workflow initialization' \
 		'make integrations              Initialize optional services after make up-all' \
 		'make down                      Stop this project, retaining persistent volumes' \
@@ -30,9 +31,14 @@ build: configure
 
 up: configure
 	$(COMPOSE) $(if $(PROFILE),--profile "$(PROFILE)",) up -d --build --wait --wait-timeout 300
+	$(MAKE) keycloak-theme
 
 up-all: configure
 	OTEL_ENABLED=true $(COMPOSE) --profile '*' up -d --build --wait --wait-timeout 300
+	$(MAKE) keycloak-theme
+
+keycloak-theme:
+	python3 scripts/keycloak-theme.py
 
 demo: up-all
 	$(MAKE) integrations

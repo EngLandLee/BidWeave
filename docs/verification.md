@@ -5,6 +5,8 @@ SPDX-License-Identifier: Apache-2.0 -->
 
 **Ngày thực hiện: 16/10/2026.** Đây là kết quả quan sát trên máy Linux chạy Docker Compose, không phải chứng nhận an toàn thông tin, kết quả chấm thi hay cam kết triển khai production. Dữ liệu demo là dữ liệu tổng hợp; không công khai tài khoản, token, bản sao lưu hoặc hồ sơ khách hàng.
 
+Mục 1–6 ghi nhận đợt phát hành 1.0.0. Mục 7 ghi riêng lượt kiểm chứng giao diện 1.1.0; không gộp kết quả AI thành công của đợt trước vào đợt sau.
+
 ## 1. Luồng nghiệp vụ chạy thật
 
 Lệnh `make smoke` chạy qua gateway, Keycloak, API, PostgreSQL, SeaweedFS, ClamAV và Flowable; không thay các dịch vụ này bằng mock.
@@ -89,3 +91,24 @@ Các lệnh runtime cần Docker, tài nguyên máy và Internet cho lần tải
 Bản ghi này là bằng chứng local. Trạng thái công khai có thể kiểm tra trực tiếp tại [CI](https://github.com/EngLandLee/BidWeave/actions/workflows/ci.yml), [Pages](https://github.com/EngLandLee/BidWeave/actions/workflows/pages.yml), [release workflow](https://github.com/EngLandLee/BidWeave/actions/workflows/release.yml) và [Releases](https://github.com/EngLandLee/BidWeave/releases).
 
 Giới hạn: GitHub Pages chỉ là landing tĩnh, không vận hành backend; n8n dùng Sustainable Use License và là thành phần tùy chọn không thuộc tuyên bố lõi OSI; không có thử tải, pentest độc lập, triển khai HA hay chứng nhận nghiệp vụ pháp lý. Các nhận định từ model và dữ liệu TED vẫn phải được người có quyền kiểm tra.
+
+## 7. Giao diện 1.1.0: workspace và Keycloak
+
+Ngày 16/10/2026, thao tác bằng trình duyệt trên desktop 1440 px và mobile 390 × 844:
+
+- Đăng nhập sai hiển thị lỗi Keycloak; đăng nhập đúng đi qua OIDC trở lại workspace. Nút hiện/ẩn mật khẩu hoạt động trên form gốc.
+- Theme sáng, tối và theo hệ thống; kiểm tra workspace, login, các không gian H/P/D/I, dialog sửa đổi và vùng xét duyệt độc lập. Mobile không tràn ngang.
+- Theme được kích hoạt trên realm đang có dữ liệu. Trước/sau có cùng **4 người dùng, 9 client** và cùng hash biểu diễn danh tính; không reset tài khoản.
+- Hồ sơ tổng hợp `b5e1db03-1053-4c4c-8f26-4bf1701e0d3b`: tạo yêu cầu R1 → tải `contracts-two.txt` → reviewer đọc và xác minh → coordinator gửi Flowable → reviewer độc lập chấp thuận → tải gói qua UI.
+- Manifest gói tải về có đúng hồ sơ/R1; người duyệt khác người tạo revision. SHA-256 của tệp xuất là `4f3f5668c301c7535a87b237438087bd079458c6c486daf1f6276b4312b8f76d`, khớp byte minh chứng nguồn.
+- Nhập hạn nộp trong quá khứ: API từ chối; thông báo lỗi nằm trong dialog, nhận focus và nhìn thấy được trên mobile. Không tạo revision từ dữ liệu lỗi.
+- So sánh ảnh landing trước/sau tại cùng kích thước desktop/mobile không có vùng pixel khác biệt. Landing không nằm trong phạm vi đổi giao diện.
+- Build frontend trong Docker thành công. Kiểm tra hiện có: 13 regression tests API và một regression test SBOM đều qua; header checker/REUSE qua, bao gồm các file theme `.properties`.
+
+Ảnh thực tế của đợt này: [workspace sáng](images/ui-1.1/process-desktop-light.png), [workspace tối](images/ui-1.1/process-desktop-dark.png), [mobile](images/ui-1.1/process-mobile.png), [đăng nhập](images/ui-1.1/login-desktop.png), [xét duyệt](images/ui-1.1/independent-review-desktop.png), [lỗi nhập liệu](images/ui-1.1/revision-error-mobile.png).
+
+Rà soát độc lập phát hiện các màn hình trước xác thực chưa kế thừa palette; đã sửa và kiểm tra lại bằng cách giữ rồi ngắt request đổi mã OIDC trong trình duyệt. Loading/error hiển thị đúng màu sáng/tối ở desktop và mobile, không tràn ngang. Sau bỏ chặn, thao tác **Về trang giới thiệu → Đăng nhập SSO** mở lại workspace của `coordinator`, đúng hồ sơ kiểm chứng và không có lỗi. Reviewer đánh giá lỗi này đã được giải quyết; đây là review mã/ảnh tự động, không phải phê duyệt của một người bên ngoài.
+
+`make up-all` sau sửa lỗi đã build lại frontend, API và workflow 1.1.0, đưa toàn bộ profile về trạng thái sẵn sàng và kích hoạt theme thành công. Không reset volume dữ liệu.
+
+**Giới hạn lượt AI:** Ollama trả lỗi khi tải model, log ghi cần khoảng 1,9 GiB nhưng bộ nhớ khả dụng lúc đó khoảng 1,4 GiB trên host 8 GB. UI hiển thị `LLM provider unavailable`, không tạo câu trả lời giả. Lượt này chỉ kiểm chứng đường hiển thị lỗi provider, không chứng minh chat/trích xuất thành công trên giao diện 1.1. Khuyến nghị tài nguyên vẫn là 16 GB cho toàn bộ profile; backend/model không bị thay bằng mock hoặc giảm ngữ cảnh để vượt kiểm tra.

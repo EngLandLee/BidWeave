@@ -88,7 +88,7 @@ async def lifespan(app: FastAPI):
                 provider.shutdown()
 
 
-app = FastAPI(title="BidWeave API", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="BidWeave API", version="1.1.0", lifespan=lifespan)
 telemetry = configure_observability(app)
 api = APIRouter(prefix="/api")
 

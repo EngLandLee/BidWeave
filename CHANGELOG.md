@@ -5,6 +5,22 @@ SPDX-License-Identifier: Apache-2.0 -->
 
 Các thay đổi đáng chú ý được ghi theo phiên bản. Nội dung phản ánh tính năng và kiểm chứng đã thực hiện, không bảo đảm điểm thi, giải thưởng hay khả năng vận hành production.
 
+## 1.1.0 — 2026-10-16
+
+### Giao diện tác nghiệp và đăng nhập
+
+- Thiết kế lại workspace H–P–D–I theo hướng Shadcn Admin: sidebar gọn, ma trận yêu cầu, vùng minh chứng và xét duyệt độc lập nhất quán trên desktop/mobile.
+- Thêm giao diện sáng, tối và theo hệ thống; giữ lựa chọn giữa workspace và trang đăng nhập.
+- Theme BidWeave cho Keycloak kế thừa form và luồng OIDC gốc. Realm mới dùng tiếng Việt; realm hiện có chỉ được cập nhật theme, không tạo lại người dùng, client hoặc mật khẩu.
+- Giữ nguyên landing page, API nghiệp vụ, quyền truy cập và quy tắc phê duyệt theo phiên bản.
+- Đưa focus đến thông báo lỗi trong dialog để lỗi xác thực dữ liệu không bị khuất trên mobile.
+- Bổ sung ảnh chụp thực tế, hướng dẫn theme và biên bản kiểm chứng luồng tạo hồ sơ → xác minh → duyệt độc lập → xuất gói trên giao diện mới.
+
+### Đóng gói
+
+- Kiểm tra SPDX header cho cả file `.properties` của theme.
+- Đồng bộ phiên bản thành phần thành 1.1.0; quy trình phát hành lấy tên JAR theo tag phiên bản.
+
 ## 1.0.0 — 2026-10-16
 
 ### Tính năng

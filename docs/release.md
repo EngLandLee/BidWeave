@@ -12,8 +12,8 @@ python3 scripts/check-headers.py
 reuse lint
 mvn -B --no-transfer-progress -f services/workflow/pom.xml clean package
 python3 scripts/release.py \
-  --version 1.0.0 \
-  --workflow-jar services/workflow/target/bidweave-workflow-1.0.0.jar \
+  --version 1.1.0 \
+  --workflow-jar services/workflow/target/bidweave-workflow-1.1.0.jar \
   --output dist/release
 (cd dist/release && sha256sum --check SHA256SUMS)
 uvx --from spdx-tools==0.8.3 pyspdxtools --infile dist/release/sbom.spdx.json
@@ -34,7 +34,7 @@ The generator can also be run directly for inspection (it writes `dependency-sbo
 
 ```sh
 python3 scripts/dependency-sbom.py \
-  --workflow-jar services/workflow/target/bidweave-workflow-1.0.0.jar \
+  --workflow-jar services/workflow/target/bidweave-workflow-1.1.0.jar \
   --output-dir dist/release
 ```
 
