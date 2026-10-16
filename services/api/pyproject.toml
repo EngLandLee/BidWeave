@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Apache-2.0 licensed project metadata; no warranty.
 [build-system]
-requires = ["setuptools==75.6.0"]
+requires = ["setuptools==84.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
