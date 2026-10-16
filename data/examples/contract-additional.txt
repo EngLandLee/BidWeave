@@ -1,0 +1,9 @@
+SPDX-FileCopyrightText: 2026 BidWeave contributors
+SPDX-License-Identifier: Apache-2.0
+
+MẪU TỔNG HỢP — KHÔNG PHẢI MINH CHỨNG PHÁP LÝ
+
+MẪU-03: hợp đồng hỗ trợ CNTT bổ sung, đã hoàn thành trong tình huống giả lập.
+Số lượng dùng cho kịch bản: 1.
+Tệp này bổ sung một hợp đồng khác với hai hợp đồng ở contracts-two.txt.
+Người xét duyệt phải kiểm tra lại; tải tệp không tự tạo trạng thái đạt.

@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2026 BidWeave contributors
+# SPDX-License-Identifier: Apache-2.0
+# Purpose: APISIX 3.x standalone data-plane configuration; routes live in apisix.yaml.
+deployment:
+  role: data_plane
+  role_data_plane:
+    config_provider: yaml
+apisix:
+  node_listen:
+    - port: 9080
+  enable_admin: false
+  enable_ipv6: false
+  enable_control: false
+  dns_resolver: ["127.0.0.11"]
+  dns_resolver_valid: 5
+  resolver_timeout: 2
+nginx_config:
+  worker_processes: 2
+  error_log: /dev/stderr
+  error_log_level: warn
+plugins:
+  - cors
+  - openid-connect
+  - proxy-rewrite
+  - response-rewrite
+  - limit-count

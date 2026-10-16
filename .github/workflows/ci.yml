@@ -1,0 +1,92 @@
+# SPDX-FileCopyrightText: 2026 BidWeave contributors
+# SPDX-License-Identifier: Apache-2.0
+# Copyright and license notice: this workflow may be reused under Apache-2.0.
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  headers-and-reuse:
+    name: Headers and REUSE
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-python@v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Check source headers
+        run: python scripts/check-headers.py
+      - name: Check dependency inventory behavior
+        run: python -m unittest discover -s scripts -p 'test_*.py'
+      - name: Check REUSE metadata
+        run: |
+          python -m pip install --disable-pip-version-check reuse==5.0.2
+          reuse lint
+
+  backend:
+    name: Backend checks
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: services/api
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-python@v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Install backend dependencies
+        run: python -m pip install uv==0.8.22 && uv sync --frozen --extra dev
+      - name: Run backend regression tests
+        run: uv run --frozen --extra dev pytest
+
+  frontend:
+    name: Frontend build
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version: '22'
+      - name: Install frontend dependencies
+        run: npm ci --ignore-scripts
+      - name: Build frontend
+        run: npm run build
+
+  workflow:
+    name: Workflow source build
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: services/workflow
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-java@v4.7.1
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: services/workflow/pom.xml
+      - uses: actions/setup-python@v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Build executable JAR
+        run: mvn -B --no-transfer-progress clean package
+      - name: Validate source release and SPDX
+        working-directory: .
+        run: |
+          python scripts/release.py --version 1.0.0 \
+            --workflow-jar services/workflow/target/bidweave-workflow-1.0.0.jar \
+            --output dist/preflight
+          python -m pip install --disable-pip-version-check spdx-tools==0.8.3
+          pyspdxtools --infile dist/preflight/sbom.spdx.json
+          pyspdxtools --infile dist/preflight/dependency-sbom.spdx.json
+          (cd dist/preflight && sha256sum --check SHA256SUMS)

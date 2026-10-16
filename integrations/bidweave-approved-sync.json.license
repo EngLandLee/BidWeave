@@ -1,0 +1,7 @@
+SPDX-FileCopyrightText: 2026 BidWeave contributors
+SPDX-License-Identifier: Apache-2.0
+
+This export is authored by BidWeave and is Apache-2.0. Running it requires n8n,
+which is a separate third-party service under the Sustainable Use License (SUL)
+and is not relicensed by this file or this repository. Do not publish n8n itself
+as part of BidWeave's OSI-licensed source release.

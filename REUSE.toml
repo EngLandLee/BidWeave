@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2026 BidWeave contributors
+# SPDX-License-Identifier: Apache-2.0
+# Copyright and license notice: this configuration may be reused under Apache-2.0.
+version = 1
+
+[[annotations]]
+path = "LICENSE"
+SPDX-FileCopyrightText = "Apache Software Foundation"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = "LICENSES/Apache-2.0.txt"
+SPDX-FileCopyrightText = "Apache Software Foundation"
+SPDX-License-Identifier = "Apache-2.0"
+
+# Existing contest/problem metadata is retained as authored documentation.
+[[annotations]]
+path = "docs/contest.md"
+SPDX-FileCopyrightText = "2026 BidWeave contributors"
+SPDX-License-Identifier = "Apache-2.0"

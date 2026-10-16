@@ -1,0 +1,14 @@
+{
+  "fixture_type": "synthetic",
+  "notice_id": "SYNTH-2026-0001",
+  "title": "Synthetic municipal cloud support tender",
+  "buyer": "Synthetic Public Authority (not a real entity)",
+  "publication_date": "2026-02-01",
+  "deadline": "2026-04-30T12:00:00Z",
+  "cpv_code": "72260000",
+  "requirements": [
+    {"key": "R-ISO", "title": "Information security management evidence", "description": "Provide a current information-security management certificate or equivalent evidence.", "kind": "document", "mandatory": true, "source_ref": "synthetic-tender:SYNTH-2026-0001#R-ISO", "owner": "security"},
+    {"key": "R-STAFF", "title": "Named service personnel", "description": "Provide at least two named support personnel and their roles.", "kind": "count", "minimum": 2, "mandatory": true, "source_ref": "synthetic-tender:SYNTH-2026-0001#R-STAFF", "owner": "delivery"}
+  ],
+  "provenance": {"source": "BidWeave-authored synthetic fixture", "historical": false, "real_company_credentials": false}
+}

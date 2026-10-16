@@ -1,0 +1,8 @@
+SPDX-FileCopyrightText: 2026 BidWeave contributors
+SPDX-License-Identifier: Apache-2.0
+
+SYNTHETIC TRAINING EXERCISE — NOT AN ACTUAL TENDER.
+
+Requirement EXP: The bidder must demonstrate at least 2 completed similar contracts. Supporting documents are mandatory.
+
+A human reviewer must check the extracted requirement, numeric threshold and source before using it in a case.

@@ -1,0 +1,10 @@
+SPDX-FileCopyrightText: 2026 BidWeave contributors
+SPDX-License-Identifier: Apache-2.0
+
+SYNTHETIC EVIDENCE — NOT A CERTIFICATE
+Fixture: SYNTH-2026-0001
+Requirement: R-ISO
+
+This text is intentionally synthetic and cannot establish a real company's
+certification, eligibility, or legal compliance. It is used only to exercise
+upload, hashing, provenance, revision and reviewer flows.
