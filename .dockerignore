@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 BidWeave contributors
+# SPDX-License-Identifier: Apache-2.0
+# Local state and generated binaries never enter source builds.
+.git
+.env
+.runtime
+**/.venv
+**/node_modules
+**/__pycache__
+**/.pytest_cache
+**/target
+**/dist
+artifacts
+backups
+.env.*
+.impeccable

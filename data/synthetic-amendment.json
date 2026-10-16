@@ -1,0 +1,11 @@
+{
+  "fixture_type": "synthetic",
+  "notice_id": "SYNTH-2026-0001",
+  "amendment_id": "SYNTH-2026-0001-A1",
+  "issued_at": "2026-03-15T09:00:00Z",
+  "reason": "Synthetic amendment adds a continuity requirement.",
+  "changes": [
+    {"key": "R-CONTINUITY", "operation": "add", "title": "Service continuity plan", "description": "Provide a service continuity and recovery plan.", "kind": "document", "mandatory": true, "source_ref": "synthetic-amendment:SYNTH-2026-0001-A1#R-CONTINUITY", "owner": "delivery"}
+  ],
+  "provenance": {"source": "BidWeave-authored synthetic fixture", "historical": false, "real_company_credentials": false}
+}

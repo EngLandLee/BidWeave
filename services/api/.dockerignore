@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: 2026 BidWeave contributors
+# SPDX-License-Identifier: Apache-2.0
+# Generated local state is not an image input.
+.venv
+__pycache__
+**/__pycache__
+.pytest_cache
+*.egg-info
+.env

@@ -1,0 +1,76 @@
+# SPDX-FileCopyrightText: 2026 BidWeave contributors
+# SPDX-License-Identifier: Apache-2.0
+# Purpose: APISIX standalone routes with OIDC protection and restrictive CORS.
+routes:
+  - id: 10
+    uri: /api/health
+    methods: [GET]
+    upstream:
+      type: roundrobin
+      nodes:
+        "api:8000": 1
+    plugins:
+      cors:
+        allow_origins: "http://localhost:8090,http://localhost:5173"
+        allow_methods: "GET,POST,PATCH,OPTIONS"
+        allow_headers: "Authorization,Content-Type,Accept"
+        allow_credential: true
+        max_age: 3600
+  - id: 20
+    uri: /api/*
+    upstream:
+      type: roundrobin
+      timeout:
+        connect: 5
+        send: 10
+        read: 150
+      nodes:
+        "api:8000": 1
+    plugins:
+      limit-count:
+        count: 600
+        time_window: 60
+        key: remote_addr
+        policy: local
+        rejected_code: 429
+      openid-connect:
+        client_id: bidweave-api
+        client_secret: "${APISIX_CLIENT_SECRET}"
+        discovery: http://keycloak:8080/realms/bidweave/.well-known/openid-configuration
+        bearer_only: true
+        introspection_endpoint_auth_method: client_secret_post
+        set_access_token_header: false
+        set_id_token_header: false
+      cors:
+        allow_origins: "http://localhost:8090,http://localhost:5173"
+        allow_methods: "GET,POST,PATCH,OPTIONS"
+        allow_headers: "Authorization,Content-Type,Accept"
+        allow_credential: true
+        max_age: 3600
+  - id: 30
+    uri: /mcp
+    upstream:
+      type: roundrobin
+      nodes:
+        "mcp:8001": 1
+    plugins:
+      openid-connect:
+        client_id: bidweave-api
+        client_secret: "${APISIX_CLIENT_SECRET}"
+        discovery: http://keycloak:8080/realms/bidweave/.well-known/openid-configuration
+        bearer_only: true
+        introspection_endpoint_auth_method: client_secret_post
+        set_access_token_header: true
+        set_id_token_header: false
+      cors:
+        allow_origins: "http://localhost:8090,http://localhost:5173"
+        allow_methods: "POST,OPTIONS"
+        allow_headers: "Authorization,Content-Type,Accept"
+        allow_credential: true
+  - id: 40
+    uri: /*
+    upstream:
+      type: roundrobin
+      nodes:
+        "web:80": 1
+#END

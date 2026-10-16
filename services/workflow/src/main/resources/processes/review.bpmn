@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-FileCopyrightText: 2026 BidWeave contributors
+     SPDX-License-Identifier: Apache-2.0
+     Purpose: authoritative independent reviewer process for submitted bid revisions. -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:flowable="http://flowable.org/bpmn"
+             targetNamespace="https://englandlee.github.io/BidWeave/">
+  <process id="bidweave-review" name="BidWeave independent review" isExecutable="true">
+    <documentation>Each submitted revision pauses at this human review task until an independent reviewer completes it.</documentation>
+    <startEvent id="review-start" name="Submission received"/>
+    <sequenceFlow id="start-to-review" sourceRef="review-start" targetRef="review"/>
+    <userTask id="review" name="Independent review" flowable:candidateGroups="reviewer">
+      <documentation>Review the exact case revision. The API enforces tenant, submitter/reviewer separation and expected revision.</documentation>
+    </userTask>
+    <sequenceFlow id="review-to-end" sourceRef="review" targetRef="review-end"/>
+    <endEvent id="review-end" name="Review recorded"/>
+  </process>
+</definitions>

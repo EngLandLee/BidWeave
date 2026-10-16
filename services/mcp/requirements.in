@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2026 BidWeave contributors
+# SPDX-License-Identifier: Apache-2.0
+# Official MCP Python SDK and minimal HTTP runtime.
+mcp==1.13.1
+httpx==0.28.1
+uvicorn==0.35.0
+# MCP 1.13 uses Pydantic internals removed in later minor releases.
+pydantic==2.11.7

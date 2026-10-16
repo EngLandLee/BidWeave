@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: 2026 BidWeave contributors
+# SPDX-License-Identifier: Apache-2.0
+# Copyright and license notice: this configuration may be reused under Apache-2.0.
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/EngLandLee/BidWeave/security/advisories/new
+    about: Report vulnerabilities privately; do not open a public issue.
+  - name: Usage support
+    url: https://github.com/EngLandLee/BidWeave/blob/main/SUPPORT.md
+    about: Read support guidance before opening an issue.

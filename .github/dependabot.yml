@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2026 BidWeave contributors
+# SPDX-License-Identifier: Apache-2.0
+# Copyright and license notice: this configuration may be reused under Apache-2.0.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /services/api
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+  - package-ecosystem: npm
+    directory: /apps/web
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5

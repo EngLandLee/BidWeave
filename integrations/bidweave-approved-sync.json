@@ -1,0 +1,61 @@
+{
+  "id": "BidWeaveApprovedSync",
+  "name": "BidWeave — approved revision acknowledgement",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "none",
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false
+  },
+  "nodes": [
+    {
+      "parameters": {"httpMethod": "POST", "path": "bidweave-approved", "responseMode": "responseNode", "options": {}},
+      "id": "trigger-approved", "name": "HTTP Trigger", "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2, "position": [180, 300], "webhookId": "bidweave-approved"
+    },
+    {
+      "parameters": {"jsCode": "const input = $json.body;\nif (!input || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input.case_id) || !Number.isInteger(input.revision) || input.revision < 1) throw new Error('Valid case UUID and revision required');\nif (!String($json.headers.authorization || '').startsWith('Bearer ')) throw new Error('Bearer authentication required');\nreturn [{json: {case_id: input.case_id, revision: input.revision}}];"},
+      "id": "validate", "name": "Validate Scope", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{'http://api:8000/api/cases/' + $json.case_id}}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters": [{"name": "Authorization", "value": "={{$('HTTP Trigger').first().json.headers.authorization}}"}]},
+        "options": {"timeout": 15000}
+      },
+      "id": "fetch-case", "name": "Fetch Current Case", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [620, 300]
+    },
+    {
+      "parameters": {"jsCode": "const c = $json;\nconst requested = $('Validate Scope').first().json;\nif (c.status !== 'approved' || c.current_revision !== requested.revision) throw new Error('Revision is not currently approved');\nconst approval = c.approvals.find(a => a.revision === requested.revision && a.decision === 'approve');\nif (!approval) throw new Error('Approval evidence missing');\nreturn [{json: {case_id: c.id, revision: c.current_revision}}];"},
+      "id": "check-approval", "name": "Check Exact Approval", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [840, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{'http://api:8000/api/cases/' + $json.case_id + '/automation/receipt-record'}}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters": [{"name": "Authorization", "value": "={{$('HTTP Trigger').first().json.headers.authorization}}"}]},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{JSON.stringify({expected_revision: $json.revision})}}",
+        "options": {"timeout": 15000}
+      },
+      "id": "post-receipt", "name": "Post Workspace Receipt", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [1060, 300]
+    },
+    {
+      "parameters": {"respondWith": "json", "responseBody": "={{ {performed: 'posted_workspace_receipt', comment_id: $json.id, case_id: $('Validate Scope').first().json.case_id, revision: $('Validate Scope').first().json.revision} }}", "options": {}},
+      "id": "respond", "name": "Respond", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1, "position": [1280, 300]
+    }
+  ],
+  "connections": {
+    "HTTP Trigger": {"main": [[{"node": "Validate Scope", "type": "main", "index": 0}]]},
+    "Validate Scope": {"main": [[{"node": "Fetch Current Case", "type": "main", "index": 0}]]},
+    "Fetch Current Case": {"main": [[{"node": "Check Exact Approval", "type": "main", "index": 0}]]},
+    "Check Exact Approval": {"main": [[{"node": "Post Workspace Receipt", "type": "main", "index": 0}]]},
+    "Post Workspace Receipt": {"main": [[{"node": "Respond", "type": "main", "index": 0}]]}
+  },
+  "pinData": {}
+}
