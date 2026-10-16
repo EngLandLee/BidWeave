@@ -58,6 +58,80 @@ const labels: Record<string, string> = {
   done: "Hoàn thành",
   historical: "Phiên bản cũ",
 };
+type ThemePreference = "light" | "dark" | "system";
+type ThemeState = {
+  preference: ThemePreference;
+  resolved: "light" | "dark";
+  setPreference: (preference: ThemePreference) => void;
+};
+function readThemePreference(): ThemePreference {
+  try {
+    const stored = window.localStorage.getItem("bidweave.theme");
+    if (stored === "light" || stored === "dark" || stored === "system")
+      return stored;
+    const cookie = document.cookie
+      .split("; ")
+      .find((entry) => entry.startsWith("bidweave-theme="))
+      ?.split("=")[1];
+    return cookie === "light" || cookie === "dark" || cookie === "system"
+      ? cookie
+      : "system";
+  } catch {
+    return "system";
+  }
+}
+function resolveTheme(preference: ThemePreference): "light" | "dark" {
+  if (preference !== "system") return preference;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
+function useThemePreference(): ThemeState {
+  const [preference, setPreferenceState] = useState<ThemePreference>(() =>
+    readThemePreference(),
+  );
+  const [resolved, setResolved] = useState<"light" | "dark">(() =>
+    resolveTheme(preference),
+  );
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const apply = () => setResolved(resolveTheme(preference));
+    apply();
+    media.addEventListener("change", apply);
+    return () => media.removeEventListener("change", apply);
+  }, [preference]);
+  const setPreference = (next: ThemePreference) => {
+    setPreferenceState(next);
+    setResolved(resolveTheme(next));
+    try {
+      window.localStorage.setItem("bidweave.theme", next);
+      document.cookie = `bidweave-theme=${next}; Path=/; SameSite=Lax${
+        window.location.protocol === "https:" ? "; Secure" : ""
+      }`;
+    } catch {
+      // A blocked storage environment still follows the in-memory preference.
+    }
+  };
+  return { preference, resolved, setPreference };
+}
+function ThemeSelect({ theme }: { theme: ThemeState }) {
+  return (
+    <label className="theme-select">
+      <span>Giao diện</span>
+      <select
+        aria-label="Chọn giao diện"
+        value={theme.preference}
+        onChange={(event) =>
+          theme.setPreference(event.target.value as ThemePreference)
+        }
+      >
+        <option value="system">Theo hệ thống</option>
+        <option value="light">Sáng</option>
+        <option value="dark">Tối</option>
+      </select>
+    </label>
+  );
+}
 function Mark() {
   return (
     <svg
@@ -81,6 +155,10 @@ function Spinner() {
   return <span className="spinner" role="status" aria-label="Đang xử lý" />;
 }
 function ErrorNotice({ error }: { error: unknown }) {
+  const notice = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (notice.current?.closest("dialog[open]")) notice.current.focus();
+  }, [error]);
   const message =
     error instanceof Error
       ? error.message
@@ -88,7 +166,7 @@ function ErrorNotice({ error }: { error: unknown }) {
         ? error
         : "Không thể hoàn tất yêu cầu.";
   return (
-    <div className="notice error" role="alert">
+    <div ref={notice} className="notice error" role="alert" tabIndex={-1}>
       <strong>
         {error instanceof ApiError && error.status === 409
           ? "Dữ liệu hoặc trạng thái đã thay đổi."
@@ -344,6 +422,7 @@ function Landing() {
 
 function Workspace() {
   const auth = useAuth();
+  const theme = useThemePreference();
   const [user, setUser] = useState<User>();
   const [cases, setCases] = useState<CaseSummary[]>([]);
   const [detail, setDetail] = useState<CaseDetail>();
@@ -395,7 +474,7 @@ function Workspace() {
   };
   if (auth.error)
     return (
-      <div className="center-state">
+      <div className="app-shell center-state" data-bw-theme={theme.resolved}>
         <ErrorNotice error={auth.error} />
         <a className="button dark" href={import.meta.env.BASE_URL}>
           Về trang giới thiệu
@@ -404,14 +483,14 @@ function Workspace() {
     );
   if (!auth.ready || loading)
     return (
-      <div className="center-state">
+      <div className="app-shell center-state" data-bw-theme={theme.resolved}>
         <Spinner />
         <p>Đang kết nối SSO và dữ liệu…</p>
       </div>
     );
   if (!auth.authenticated)
     return (
-      <div className="center-state">
+      <div className="app-shell center-state" data-bw-theme={theme.resolved}>
         <h1>Không gian BidWeave</h1>
         <button className="button dark" onClick={auth.login}>
           Đăng nhập
@@ -419,7 +498,7 @@ function Workspace() {
       </div>
     );
   return (
-    <div className="app-shell">
+    <div className="app-shell" data-bw-theme={theme.resolved}>
       <aside className="sidebar">
         <a className="brand" href={import.meta.env.BASE_URL}>
           <Mark />
@@ -484,6 +563,7 @@ function Workspace() {
                 ))}
               </select>
             </Field>
+            <ThemeSelect theme={theme} />
             {user?.roles.includes("coordinator") && (
               <button
                 className="button rust"

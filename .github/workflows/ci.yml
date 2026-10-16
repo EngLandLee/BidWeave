@@ -83,8 +83,8 @@ jobs:
       - name: Validate source release and SPDX
         working-directory: .
         run: |
-          python scripts/release.py --version 1.0.0 \
-            --workflow-jar services/workflow/target/bidweave-workflow-1.0.0.jar \
+          python scripts/release.py --version 1.1.0 \
+            --workflow-jar services/workflow/target/bidweave-workflow-1.1.0.jar \
             --output dist/preflight
           python -m pip install --disable-pip-version-check spdx-tools==0.8.3
           pyspdxtools --infile dist/preflight/sbom.spdx.json

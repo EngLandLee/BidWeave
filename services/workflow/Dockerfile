@@ -10,7 +10,7 @@ RUN mvn -B -ntp -DskipTests package
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /opt/bidweave
-COPY --from=build /src/target/bidweave-workflow-1.0.0.jar app.jar
+COPY --from=build /src/target/bidweave-workflow-1.1.0.jar app.jar
 ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=65 -Xms192m -Xmx384m"
 EXPOSE 8080
 USER 10001

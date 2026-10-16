@@ -47,7 +47,7 @@ jobs:
         run: |
           python scripts/release.py \
             --version '${{ steps.version.outputs.version }}' \
-            --workflow-jar services/workflow/target/bidweave-workflow-1.0.0.jar \
+            --workflow-jar 'services/workflow/target/bidweave-workflow-${{ steps.version.outputs.version }}.jar' \
             --output dist/release
       - name: Validate SPDX 2.3 documents
         run: |
