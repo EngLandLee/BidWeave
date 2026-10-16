@@ -156,6 +156,10 @@ def realm(env: dict[str, str]) -> dict:
         "realm": "bidweave",
         "enabled": True,
         "displayName": "BidWeave local realm",
+        "loginTheme": "bidweave",
+        "internationalizationEnabled": True,
+        "supportedLocales": ["vi", "en"],
+        "defaultLocale": "vi",
         "registrationAllowed": False,
         "resetPasswordAllowed": False,
         "roles": {
@@ -230,6 +234,7 @@ def configure(env_path: Path, force: bool, llm_model: str | None = None) -> None
         "FLOWABLE_PASSWORD": random_secret(),
         "FUSEKI_ADMIN_PASSWORD": random_secret(),
         "KEYCLOAK_ADMIN_PASSWORD": random_secret(),
+        "KEYCLOAK_ADMIN_USERNAME": "admin",
         "N8N_ENCRYPTION_KEY": random_secret(40),
         "S3_ACCESS_KEY": "bw" + random_secret(18),
         "S3_SECRET_KEY": random_secret(40),
