@@ -3,13 +3,23 @@
 
 # Hướng dẫn sử dụng và luồng demo
 
-Các ảnh trong tài liệu được chụp bằng trình duyệt tự động từ BidWeave đang chạy, không phải bản thiết kế. Hồ sơ, hợp đồng và trao đổi được ghi **MẪU TỔNG HỢP**; metadata TED được truy vấn từ nguồn công khai thật. Không nhập tài liệu hoặc dữ liệu cá nhân thật vào một buổi trình diễn công khai.
+Các ảnh trong tài liệu được chụp bằng trình duyệt tự động từ BidWeave đang chạy, không phải bản thiết kế. Ảnh workspace và đăng nhập trong `images/ui-1.1/` thuộc giao diện 1.1; ảnh kết quả Agent/trích xuất cũ được ghi rõ là kiểm chứng 1.0. Hồ sơ, hợp đồng và trao đổi được ghi **MẪU TỔNG HỢP**; metadata TED được truy vấn từ nguồn công khai thật. Không nhập tài liệu hoặc dữ liệu cá nhân thật vào một buổi trình diễn công khai.
 
 ## 1. Khởi động và đăng nhập
 
 Thực hiện [hướng dẫn vận hành](operations.md), chạy `make demo`, mở <http://localhost:8090> và chọn **Đăng nhập SSO**. Mật khẩu mẫu nằm trong `.env` riêng trên máy; không sao chép vào slide/issue. Đăng nhập `coordinator`.
 
 Landing công khai giải thích sản phẩm; GitHub Pages chỉ chứa trang này, không chứa backend. [Ảnh landing đầy đủ](images/landing.png).
+
+### Giao diện sáng, tối và đăng nhập
+
+Workspace dùng thanh H–P–D–I, bộ chọn hồ sơ và bộ chọn **Giao diện** ở phần đầu. Chọn **Sáng**, **Tối** hoặc **Theo hệ thống**; lựa chọn được nhớ trên trình duyệt. Trang Keycloak cùng hostname nhận lựa chọn qua cookie giao diện không chứa thông tin đăng nhập. Khi triển khai hai hostname khác nhau, không giả định lựa chọn tự đồng bộ.
+
+Theme Keycloak chỉ đổi cách trình bày; danh tính, quyền và mật khẩu vẫn do Keycloak quản lý. Realm hiện có giữ ngôn ngữ đã cấu hình; realm mới do dự án tạo mặc định tiếng Việt.
+
+[Đăng nhập sáng](images/ui-1.1/login-light-desktop.png) · [Đăng nhập tối](images/ui-1.1/login-desktop.png) · [Đăng nhập mobile](images/ui-1.1/login-mobile.png)
+
+![Workspace giao diện tối với ma trận, xét duyệt và lịch sử](images/ui-1.1/process-desktop-dark.png)
 
 ## 2. Tạo hồ sơ và yêu cầu R1
 
@@ -31,7 +41,7 @@ Landing công khai giải thích sản phẩm; GitHub Pages chỉ chứa trang n
 
 5. Chọn **Lưu phiên bản**. Đây là R1; không có dấu xác nhận tự động.
 
-![Trình soạn yêu cầu có mã, ngưỡng và vị trí nguồn](images/revision-editor.png)
+![Trình soạn yêu cầu có mã, ngưỡng và vị trí nguồn](images/ui-1.1/revision-editor-desktop.png)
 
 Mã `EXP` là định danh để so sánh giữa các revision, không nên đổi chỉ vì sửa tiêu đề. Trường người phụ trách là mô tả nghiệp vụ; không cấp vai trò SSO hay tự nhận task thay người dùng.
 
@@ -39,7 +49,7 @@ Mã `EXP` là định danh để so sánh giữa các revision, không nên đ�
 
 Trong **H — Cộng tác**, dùng **Nhận việc**, hoàn thành task và gửi trao đổi/bàn giao. Đánh dấu task hoàn thành **không thay** việc xác minh minh chứng hoặc phê duyệt hồ sơ.
 
-![Công việc và trao đổi trên hồ sơ thật của buổi demo](images/human-workspace.png)
+![Công việc và trao đổi trên hồ sơ thật của buổi demo](images/ui-1.1/human-desktop.png)
 
 Trong **D — Minh chứng**, khi hồ sơ còn là bản nháp:
 
@@ -66,7 +76,7 @@ Không dùng số lượng tự khai như sự thật ngoài đời. Reviewer ph
 3. Có thể chọn **Yêu cầu sửa** để đưa hồ sơ về bản nháp; sau bổ sung, coordinator gửi lại bằng workflow mới.
 4. Khi R1 đã duyệt, **D → Xuất gói đã duyệt** tải `.tar.gz` chứa tệp và `manifest.json`. So sánh SHA-256 của tệp với manifest.
 
-Phê duyệt là quyết định của người dùng trong workflow, không phải sự chứng nhận pháp lý từ phần mềm. [Ảnh xét duyệt độc lập](images/independent-review.png).
+Phê duyệt là quyết định của người dùng trong workflow, không phải sự chứng nhận pháp lý từ phần mềm. [Ảnh xét duyệt độc lập trên giao diện 1.1](images/ui-1.1/independent-review-desktop.png).
 
 ## 6. Sửa đổi R2: hai hợp đồng thành ba
 
@@ -75,13 +85,13 @@ Phê duyệt là quyết định của người dùng trong workflow, không ph�
 3. Xem phần **Ảnh hưởng của phiên bản hiện tại**: nêu giá trị trước/sau và hạn nộp trước/sau. R1 cùng quyết định cũ vẫn nằm trong lịch sử.
 4. R2 trở về bản nháp. Minh chứng/duyệt R1 không tự trở thành xác nhận/duyệt R2. Nút xuất chưa được mở; gọi API xuất revision cũ hoặc R2 chưa duyệt cũng bị chặn.
 
-![Sửa đổi R2 hiển thị ngưỡng 2 → 3, hạn nộp và lịch sử R1](images/amendment-impact.png)
+![Ma trận, tác động sửa đổi và lịch sử trên giao diện 1.1; ảnh chụp sau khi R2 được duyệt](images/ui-1.1/process-desktop-light.png)
 
 5. Tải `data/examples/contract-additional.txt` với số lượng `1` cho R2.
 6. `reviewer` chọn **Xác nhận lại** ở minh chứng hai hợp đồng của R1 và **Xác nhận** ở tệp mới. Bản ghi xác nhận R1 vẫn được giữ; có bản ghi tương ứng cho R2.
 7. `coordinator` gửi xét duyệt R2, `reviewer` chấp thuận với căn cứ mới. Xuất lại gói R2 và kiểm tra manifest.
 
-[Ảnh R2 đã duyệt, giữ nguyên lịch sử R1](images/approved-amendment.png).
+[Ảnh R2 đã duyệt, giữ nguyên lịch sử R1](images/ui-1.1/process-desktop-light.png).
 
 ## 7. Dữ liệu, audit và n8n
 
@@ -94,7 +104,7 @@ Tab **D** có các thao tác dùng dịch vụ thật:
 - **Kiểm tra chuỗi nhật ký:** kiểm tra hash/liên kết. Kết quả hợp lệ không thay chữ ký số hoặc checkpoint tin cậy độc lập.
 - **Gửi biên nhận qua n8n:** chỉ coordinator, đúng revision đã duyệt. Sau thành công, tab H thấy comment mới **không cần bấm Làm mới**. Nếu revision đổi trước bước ghi, API từ chối biên nhận cũ.
 
-![Tìm kiếm, nguồn TED, audit và lịch sử dữ liệu đang hoạt động](images/data-lineage.png)
+![Minh chứng và các thao tác dữ liệu trên giao diện 1.1](images/ui-1.1/data-desktop.png)
 
 n8n không tự phê duyệt, không giả vờ đã gửi email/nộp thầu; xem [phạm vi và giấy phép connector](../integrations/n8n-setup.md).
 
@@ -106,11 +116,13 @@ Trong **I — Trợ lý**:
 - Hỏi: `Revision hiện tại là gì? Hồ sơ đã được duyệt chưa? Nêu nguồn để tôi đối chiếu.`
 - Kiểm tra câu trả lời, source ID, model và giới hạn. Chat nhận metadata có quyền, không tự nhận xét rằng đã đọc toàn văn tất cả minh chứng.
 
-![Câu trả lời thật của model cục bộ, kèm nguồn và giới hạn](images/agent-grounded-answer.png)
+![Vùng hỏi Agent và trích xuất trên giao diện 1.1](images/ui-1.1/intelligence-desktop.png)
+
+[Ảnh câu trả lời thật từ lần kiểm chứng 1.0](images/agent-grounded-answer.png) được giữ làm bằng chứng lịch sử, không phải ảnh giao diện mới. Trong lượt kiểm chứng giao diện 1.1, Ollama báo thiếu RAM và workspace hiển thị lỗi provider; không ghi nhận lượt đó là AI thành công.
 
 Để trích xuất, tải `data/examples/tender-terms.txt` hoặc PDF có text mà bạn có quyền xử lý. File mẫu có yêu cầu hai hợp đồng. Kết quả phải được người dùng kiểm tra, đặc biệt key, loại `count`, ngưỡng `2`, nguồn và người phụ trách.
 
-![Bản đề xuất trích xuất chưa tự ghi vào hồ sơ](images/extraction-review.png)
+![Kết quả trích xuất thật từ lần kiểm chứng 1.0; chưa tự ghi vào hồ sơ](images/extraction-review.png)
 
 Chọn **Rà soát trong trình soạn phiên bản**, sau đó **Rà soát đề xuất** trong tab P để mở editor. Việc này **chưa lưu revision**. Nếu đang minh họa R2 đã duyệt và không muốn sửa tiếp, đóng editor, không chọn lưu. Khi thực sự dùng đề xuất, phải hợp nhất với các yêu cầu hiện có: không vô tình xóa các yêu cầu chỉ vì chúng không xuất hiện trong đoạn tài liệu vừa trích xuất.
 
@@ -120,17 +132,19 @@ Client Agent ngoài workspace có thể dùng [MCP](../integrations/MCP.md), nh�
 
 ## 9. Màn hình nhỏ và các tình huống chặn
 
-<img src="images/mobile-workspace.png" alt="Workspace ở chiều rộng 390 pixel, các panel xuống một cột" width="340">
+<img src="images/ui-1.1/process-mobile.png" alt="Workspace 1.1 ở chiều rộng 390 pixel, các panel xuống một cột" width="340">
 
 Đã kiểm tra viewport 390 pixel không có tràn ngang. Các panel xuống một cột; thanh H–P–D–I vẫn dùng được. Đây không phải chứng nhận mọi thiết bị/trình đọc màn hình đều đã được kiểm thử.
 
 | Tình huống | Hành vi mong đợi |
 | --- | --- |
-| Hạn nộp quá khứ hoặc key yêu cầu trùng | Không tạo revision; lỗi xuất hiện ngay trong hộp thoại |
+| Hạn nộp quá khứ hoặc key yêu cầu trùng | Không tạo revision; lỗi xuất hiện và nhận focus ngay trong hộp thoại |
 | Hai người cùng sửa từ revision cũ | 409; tải lại và đối chiếu, không tự ghi đè |
 | Người tải tự xác nhận hoặc người gửi tự duyệt | API từ chối dù cố gọi ngoài UI |
 | `outsider` đọc hồ sơ tenant chính | 404; không tiết lộ dữ liệu |
 | Model/TED/Fuseki/n8n chưa bật hoặc lỗi | Lỗi rõ ràng, không hiển thị thành công giả |
 | Giao diện giữ dữ liệu cũ sau thao tác từ nơi khác | **Làm mới**, kiểm tra revision trước khi tiếp tục |
+
+[Ảnh lỗi hạn nộp trong dialog mobile](images/ui-1.1/revision-error-mobile.png). Người dùng có thể sửa dữ liệu tại chỗ; không phải đóng dialog để đọc lỗi.
 
 Đối chiếu các kiểm chứng đã thực hiện tại [verification.md](verification.md), không suy ra rằng mọi giới hạn triển khai thật đã được giải quyết chỉ từ ảnh demo.

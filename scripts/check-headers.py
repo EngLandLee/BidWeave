@@ -48,6 +48,7 @@ CODE_SUFFIXES = {
     ".bpmn",
     ".svg",
     ".conf",
+    ".properties",
 }
 CODE_NAMES = {
     "Dockerfile",

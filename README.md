@@ -44,9 +44,9 @@ Không phải hệ thống đấu thầu quốc gia, công cụ chấm thầu t�
 | **D — Data** | Tải và xác minh tệp, kiểm tra SHA-256, tra TED, xem JSON-LD, snapshot lịch sử, tìm yêu cầu và kiểm tra chuỗi audit |
 | **I — Intelligence** | Hỏi theo ngữ cảnh hồ sơ, trích xuất PDF/text thành đề xuất, rà soát trước khi lưu và dùng MCP theo quyền |
 
-![Workspace xét duyệt độc lập bằng tài khoản reviewer](docs/images/independent-review.png)
+![Workspace 1.1 xét duyệt độc lập bằng tài khoản reviewer](docs/images/ui-1.1/independent-review-desktop.png)
 
-[Ảnh và kịch bản thao tác từng bước](docs/user-guide.md) được chụp từ hệ thống cục bộ đang chạy, với dữ liệu tổng hợp được ghi rõ. Không dùng mockup thay bằng chứng chạy.
+[Ảnh và kịch bản thao tác từng bước](docs/user-guide.md) được chụp từ hệ thống cục bộ đang chạy, với dữ liệu tổng hợp được ghi rõ. Workspace và Keycloak có giao diện sáng/tối; landing công khai giữ nguyên. Không dùng mockup thay bằng chứng chạy.
 
 ## Ba tầng, bảy lớp
 

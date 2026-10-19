@@ -18,7 +18,7 @@ cd BidWeave
 make demo
 ```
 
-`make demo` chạy tuần tự: sinh cấu hình → build API, workspace, MCP và Flowable từ nguồn → khởi động các dịch vụ → tải `qwen2.5:1.5b` vào Ollama → nhập và publish workflow n8n. Lần đầu có thể chậm vì tải dependency/model và dữ liệu ClamAV. Lệnh phải kết thúc thành công; không bỏ qua lỗi readiness.
+`make demo` chạy tuần tự: sinh cấu hình → build API, workspace, MCP và Flowable từ nguồn → khởi động các dịch vụ → kích hoạt theme đăng nhập trên realm hiện có → tải `qwen2.5:1.5b` vào Ollama → nhập và publish workflow n8n. Lần đầu có thể chậm vì tải dependency/model và dữ liệu ClamAV. Lệnh phải kết thúc thành công; không bỏ qua lỗi readiness.
 
 - Landing/workspace: <http://localhost:8090>.
 - Keycloak: <http://localhost:8091>. Realm: `bidweave`.
@@ -35,6 +35,14 @@ make smoke
 ```
 
 `make up` không tự kéo model hoặc bật các profile tùy chọn. Giao diện phải báo dịch vụ chưa sẵn sàng thay vì trả kết quả AI/dữ liệu giả. Bật đầy đủ sau đó bằng `make demo`.
+
+### Cập nhật theme trên dữ liệu hiện có
+
+`make up` và `make up-all` mount theme từ `infra/keycloak/themes/bidweave` và chạy `make keycloak-theme` sau khi Keycloak sẵn sàng. Lệnh này chỉ cập nhật `loginTheme` qua Admin API, không nhập lại realm, đặt lại mật khẩu hay tạo lại người dùng/client.
+
+Nếu dịch vụ đã chạy với volume cũ, dùng `make up` để cập nhật mount rồi kích hoạt theme; có thể gọi riêng `make keycloak-theme` khi chỉ cần áp dụng lại lựa chọn. Script lấy thông tin quản trị từ `.env` riêng, không in token. Thiếu thông tin xác thực hoặc Admin API từ chối sẽ làm lệnh thất bại; không dùng `make configure --force` để xử lý.
+
+Realm mới được cấu hình theme BidWeave và tiếng Việt. Với realm hiện có, các thiết lập ngôn ngữ và tài khoản được giữ nguyên. Workspace và login chia sẻ lựa chọn sáng/tối qua cookie chỉ khi dùng cùng hostname, như `localhost:8090` và `localhost:8091`.
 
 ## Tài khoản mẫu và bí mật
 

@@ -1,0 +1,4 @@
+SPDX-FileCopyrightText: 2026 BidWeave contributors
+SPDX-License-Identifier: Apache-2.0
+
+Actual local Keycloak login with the BidWeave 1.1 theme, 2026-10-16. No password or token shown. Keycloak retains its upstream rights; see docs/licensing.md.
