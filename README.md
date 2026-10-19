@@ -12,7 +12,7 @@
 [![License](https://img.shields.io/badge/source%20license-Apache--2.0-blue)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/EngLandLee/BidWeave)](https://github.com/EngLandLee/BidWeave/releases)
 
-[Giới thiệu](https://englandlee.github.io/BidWeave/) · [Chạy từ nguồn](#chạy-cục-bộ) · [Hướng dẫn sử dụng](docs/user-guide.md) · [Kiến trúc](docs/architecture.md) · [Báo lỗi](https://github.com/EngLandLee/BidWeave/issues/new/choose)
+[Giới thiệu](https://englandlee.github.io/BidWeave/) · [Chạy từ nguồn](#chạy-cục-bộ) · [Tài liệu API](docs/api.md) · [Hướng dẫn sử dụng](docs/user-guide.md) · [Kiến trúc](docs/architecture.md) · [Báo lỗi](https://github.com/EngLandLee/BidWeave/issues/new/choose)
 
 </div>
 
